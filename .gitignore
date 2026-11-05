@@ -1,0 +1,12 @@
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+*.sqlite
+*.db
+*.hdf5
+*.csv
+.env
+*.log
+local_config.json
+raw_data/
