@@ -11,7 +11,7 @@ dependencies = []
 
 [project.optional-dependencies]
 hardware = ["qcodes", "pyvisa", "pyvisa-py"]
-gui = ["PySide6>=6.8,<7", "pyqtgraph>=0.14,<0.15"]
+gui = ["PySide6>=6.8,<7", "pyqtgraph>=0.13.7,<0.15"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

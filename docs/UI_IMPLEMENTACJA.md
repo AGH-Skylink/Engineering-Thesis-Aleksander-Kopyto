@@ -14,6 +14,11 @@ W PowerShell, z katalogu repozytorium:
 
 Jeżeli `.venv` jeszcze nie istnieje, najpierw wykonaj `python -m venv .venv`.
 
+Projekt dopuszcza pyqtgraph od 0.13.7 do wersji poniżej 0.15. Gdy pip nie widzi
+nowszych wydań, sprawdź wersję Pythona wewnątrz `.venv`, uaktualnij pip i
+sprawdź konfigurację indeksu poleceniem `python -m pip config debug`.
+Nie publikuj logów konfiguracji zawierających dane dostępowe do indeksu.
+
 ## Co można sprawdzić
 
 - Układ z Figmy: duży wykres po lewej, parametry po prawej, tryby na dole.
