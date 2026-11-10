@@ -28,6 +28,16 @@ Zakres użycia generatywnej AI należy uzgodnić z opiekunem. Nie podpisuj bez z
 
 ### Zasady obowiązujące przy kolejnych zmianach
 
+Demonstracja UI 2026-11-10 (OpenAI Codex), na wyraźną prośbę autora: AI
+przygotowała oddzielny tryb `--demo` z syntetycznymi przebiegami T1/CW/Pulsed
+ODMR, animowanym postępem, symulowanymi logami i testami urządzeń oraz eksportem
+JSON z oznaczeniem DEMO i `simulated: true`. Generowane krzywe są ilustracją
+interfejsu, nie zweryfikowanym modelem stanowiska ani wynikami eksperymentu.
+Weryfikacja agenta: testy startu, stopu, zmiany trybów, eksportu i oznaczeń danych,
+braku uruchamiania procesów VISA w DEMO, odrzucania błędnych parametrów oraz
+uruchomienie flagi `--demo` przez pętlę Qt z ukończeniem 50 punktów i inspekcją
+zrzutu ekranu. Analiza kodu i ocena demonstracji przez autora: [do uzupełnienia].
+
 Zgodność zależności 2026-11-10 (OpenAI Codex): po zgłoszonym błędzie instalacji
 AI obniżyła minimalną wersję pyqtgraph z 0.14 do 0.13.7, zachowując górne
 ograniczenie <0.15. Agent sprawdził metadane PyPI i uruchomił komplet 15 testów

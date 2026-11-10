@@ -91,6 +91,11 @@ class DiagnosticsConsole(QWidget):
         self.deadline.setInterval(30000)
         self.deadline.timeout.connect(self._timeout)
         self.busy = False
+        self.demo_mode = False
+        self.demo_timer = QTimer(self)
+        self.demo_timer.setSingleShot(True)
+        self.demo_timer.setInterval(350)
+        self.demo_timer.timeout.connect(self._demo_finished)
         self.task = ""
         self.interrupted = False
         self._buffer = ""
@@ -116,6 +121,12 @@ class DiagnosticsConsole(QWidget):
 
     def start_check(self, task: str):
         if self.busy:
+            return
+        if self.demo_mode:
+            self.task = task
+            self._set_busy(True)
+            self.append_message(f"DEMO | Symulowany test: {task}. Bez połączenia z aparaturą.")
+            self.demo_timer.start()
             return
         address = self.sg_address.text().strip() if task == "sg386" else self.scope_address.text().strip()
         if task != "list" and not address:
@@ -149,6 +160,9 @@ class DiagnosticsConsole(QWidget):
         for widget in (self.sg_button, self.scope_button, self.discover_button,
                        self.sg_address, self.scope_address, self.backend):
             widget.setEnabled(not busy)
+        if self.demo_mode:
+            for widget in (self.sg_address, self.scope_address, self.backend):
+                widget.setEnabled(False)
         self.cancel_button.setEnabled(busy)
 
     def _read_output(self):
@@ -181,6 +195,11 @@ class DiagnosticsConsole(QWidget):
             self._finished(-1, QProcess.ExitStatus.CrashExit)
 
     def cancel(self):
+        if self.demo_mode and self.busy:
+            self.demo_timer.stop()
+            self.append_message("DEMO | Symulowany test przerwany.")
+            self._set_busy(False)
+            return
         if self.busy:
             self.interrupted = True
             self.append_message("WARNING | Przerywanie testu.")
@@ -191,6 +210,9 @@ class DiagnosticsConsole(QWidget):
         self.cancel()
 
     def shutdown(self):
+        if self.demo_mode and self.busy:
+            self.cancel()
+        self.demo_timer.stop()
         self.logger.removeHandler(self.handler)
         self.handler.close()
         self.deadline.stop()
@@ -198,3 +220,14 @@ class DiagnosticsConsole(QWidget):
             self.interrupted = True
             self.process.kill()
             self.process.waitForFinished(1500)
+
+    def _demo_finished(self):
+        replies = {
+            "sg386": "SG386-DEMO: IDN symulowany; FREQ = 2870000000 Hz; AMPR = -30 dBm.",
+            "scope": "DSO-X 2014A-DEMO: identyfikacja symulowana; generator próbek gotowy.",
+            "list": "Zasoby symulowane: DEMO::SG386, DEMO::DSOX2014A, DEMO::PULSESTREAMER.",
+        }
+        self.append_message(f"DEMO | {replies[self.task]}")
+        if self.task != "list":
+            self.test_status.emit(self.task, "symulowany test OK")
+        self._set_busy(False)

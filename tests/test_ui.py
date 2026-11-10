@@ -3,10 +3,13 @@
 import importlib.util
 from contextlib import contextmanager
 import logging
+import json
 import os
 import socketserver
 import threading
 import time
+import tempfile
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 
@@ -116,6 +119,73 @@ class OfflineWindowTests(unittest.TestCase):
         while not condition() and time.monotonic() < deadline:
             QTest.qWait(10)
         self.assertTrue(condition(), "Asynchronous diagnostic did not finish in time")
+
+    def make_demo(self):
+        self.dispose_window()
+        from nv_lab.ui.main_window import MainWindow
+        self.window = MainWindow(demo_mode=True)
+        self.window.points.setValue(5)
+        return self.window.demo
+
+    def test_demo_sweep_export_is_labelled_and_never_launches_visa(self):
+        demo = self.make_demo()
+        with patch("nv_lab.ui.console.QProcess.start") as start_process:
+            self.window.start_button.click()
+            self.assertTrue(demo.running)
+            self.assertFalse(self.window.mode_fields.isEnabled())
+            for _ in range(5):
+                demo.tick()
+            self.assertFalse(demo.running)
+            self.assertEqual(len(demo.rows), 5)
+            self.assertTrue(demo.metadata["completed"])
+            self.assertTrue(self.window.save_button.isEnabled())
+            self.assertIn("DEMO", self.window.status.text())
+            self.assertEqual(demo.rows[0]["x"], 100)
+            self.assertEqual(demo.rows[-1]["x"], 1000)
+            with tempfile.TemporaryDirectory() as folder:
+                path = Path(folder) / "DEMO.json"
+                demo.export(path)
+                document = json.loads(path.read_text(encoding="utf-8"))
+                self.assertTrue(document["metadata"]["simulated"])
+                self.assertIn("NOT AN EXPERIMENT", document["metadata"]["label"])
+                self.assertEqual(len(document["samples"]), 5)
+            for button in (self.window.console.sg_button, self.window.console.scope_button,
+                           self.window.console.discover_button):
+                button.click()
+                self.wait_until(lambda: not self.window.console.busy)
+            start_process.assert_not_called()
+
+    def test_demo_stop_restart_mode_switch_and_close(self):
+        demo = self.make_demo()
+        self.window.start_button.click()
+        demo.tick()
+        self.window.stop_button.click()
+        self.assertFalse(demo.running)
+        self.assertFalse(demo.metadata["completed"])
+        self.assertEqual(len(demo.rows), 1)
+        self.assertTrue(self.window.start_button.isEnabled())
+        for mode in (0, 1):
+            self.window.mode_buttons[mode].click()
+            self.assertEqual(demo.rows, [])
+            self.window.start_button.click()
+            for _ in range(5):
+                demo.tick()
+            self.assertTrue(demo.metadata["completed"])
+            self.assertEqual(demo.metadata["mode"], self.window.MODES[mode])
+            self.assertEqual(demo.rows[0]["x"], 2800)
+            self.assertEqual(demo.rows[-1]["x"], 2940)
+        self.window.start_button.click()
+        self.window.close()
+        self.assertFalse(demo.timer.isActive())
+        self.assertFalse(demo.running)
+
+    def test_demo_rejects_invalid_t1_range_before_generating_samples(self):
+        demo = self.make_demo()
+        self.window.tau_start.setValue(2000)
+        self.window.start_button.click()
+        self.assertFalse(demo.running)
+        self.assertEqual(demo.rows, [])
+        self.assertIn("Błąd parametrów", self.window.feedback.text())
 
     def test_console_shows_program_logs_and_validates_missing_address(self):
         console = self.window.console

@@ -70,8 +70,9 @@ class MainWindow(QMainWindow):
 
     MODES = ("CW ODMR", "Pulsed ODMR", "T1")
 
-    def __init__(self) -> None:
+    def __init__(self, demo_mode: bool = False) -> None:
         super().__init__()
+        self.demo = None
         self.setWindowTitle("NV Lab — stanowisko magnetometru | OFFLINE")
         self.resize(1280, 800)
         self.setMinimumSize(1000, 700)
@@ -106,6 +107,7 @@ class MainWindow(QMainWindow):
         body.setSpacing(32)
         splitter.addWidget(body_widget)
         self.console = DiagnosticsConsole(self)
+        self.console.demo_mode = demo_mode
         splitter.addWidget(self.console)
         splitter.setChildrenCollapsible(False)
         splitter.setStretchFactor(0, 3)
@@ -127,6 +129,7 @@ class MainWindow(QMainWindow):
         left.addWidget(self.tabs, 1)
         self.notice = QLabel("Pomiar OFFLINE · Testy komunikacji dostępne w konsoli poniżej.")
         self.notice.setObjectName("notice")
+        self.notice.setWordWrap(True)
         left.addWidget(self.notice)
         modes = QHBoxLayout()
         self.mode_buttons = []
@@ -152,14 +155,18 @@ class MainWindow(QMainWindow):
         right.addLayout(common)
         self.mode_fields = QStackedWidget()
         right.addWidget(self.mode_fields)
+        self.odmr_ranges = []
         for index in range(2):
             page = QWidget()
             fields = QVBoxLayout(page)
             fields.setContentsMargins(0, 0, 0, 0)
             fields.addWidget(section("ODMR"))
             form = QFormLayout()
-            form.addRow("Freq 1", number(2000, 3000, 2800, "MHz", 6))
-            form.addRow("Freq 2", number(2000, 3000, 2940, "MHz", 6))
+            low = number(2000, 3000, 2800, "MHz", 6)
+            high = number(2000, 3000, 2940, "MHz", 6)
+            self.odmr_ranges.append((low, high))
+            form.addRow("Freq 1", low)
+            form.addRow("Freq 2", high)
             fields.addLayout(form)
             if index == 1:
                 fields.addWidget(section("RABI"))
@@ -269,8 +276,14 @@ class MainWindow(QMainWindow):
         self._set_signal_scale()
         self.set_mode(2)
         logger.info("Uruchomiono interfejs. Akwizycja wyłączona; diagnostyka na żądanie.")
+        if demo_mode:
+            from nv_lab.ui.demo import DemoController
+            self.demo = DemoController(self)
 
     def _update_test_status(self, device: str, state: str):
+        if self.demo is not None:
+            self.demo.update_status(f"{device}: {state}")
+            return
         self.device_test_status[device] = state
         self.status.setText(
             "○ SYSTEM: POMIAR OFFLINE  │  ○ Pulse Streamer: niepołączony  │  "
@@ -279,6 +292,8 @@ class MainWindow(QMainWindow):
         )
 
     def closeEvent(self, event):
+        if self.demo is not None:
+            self.demo.stop()
         self.console.shutdown()
         super().closeEvent(event)
 
@@ -313,6 +328,8 @@ class MainWindow(QMainWindow):
         self.measurement_plot.getAxis("bottom").enableAutoSIPrefix(True)
         self.invalidate_preview()
         logger.info("Wybrano tryb %s.", self.MODES[index])
+        if self.demo is not None:
+            self.demo.mode_changed()
 
     def invalidate_preview(self, *_args) -> None:
         self.last_sequences = ()

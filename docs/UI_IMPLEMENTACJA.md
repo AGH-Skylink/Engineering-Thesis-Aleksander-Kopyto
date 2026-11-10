@@ -19,7 +19,43 @@ nowszych wydań, sprawdź wersję Pythona wewnątrz `.venv`, uaktualnij pip i
 sprawdź konfigurację indeksu poleceniem `python -m pip config debug`.
 Nie publikuj logów konfiguracji zawierających dane dostępowe do indeksu.
 
-## Co można sprawdzić
+## Demonstracja działania bez aparatury
+
+```powershell
+.\.venv\Scripts\python.exe -m nv_lab.ui --demo
+```
+
+Tryb DEMO jest wybierany przy uruchomieniu. Żółty pasek, tytuł okna i wykresu
+oznaczają dane syntetyczne. Zwykłe uruchomienie bez `--demo` zachowuje tryb
+offline i rzeczywiste testy komunikacji na żądanie.
+
+1. Wybierz T1, CW ODMR lub Pulsed ODMR i kliknij START.
+2. Wykres aktualizuje się co 100 ms, a konsola wypisuje postęp i symulowane
+   czynności SG386, Pulse Streamera i oscyloskopu.
+3. STOP zatrzymuje demonstrację z zachowaniem zebranych próbek. START rozpoczyna
+   nowy przebieg. Zmiana trybu usuwa próbki poprzedniej demonstracji.
+4. SAVE zapisuje ukończony lub zatrzymany przebieg do JSON. Plik zawiera
+   `simulated: true`, etykietę DEMO, parametry, surowe próbki A/B i sygnał wykresu
+   oraz informację `completed` odróżniającą pełny przebieg od przerwanego.
+5. Przyciski testów i wykrywania VISA również symulują odpowiedzi. W DEMO nie
+   uruchamiają procesów diagnostycznych ani połączeń z urządzeniami.
+
+T1 przedstawia przykładową krzywą wykładniczą o zadanym w generatorze czasie
+350 µs. To parametr ilustracji, nie wynik dopasowania. Ref. subtraction wybiera
+różnicę syntetycznych A − B zamiast B. CW i Pulsed ODMR pokazują schematyczne
+dołki rezonansowe o różnej szerokości. Nie jest to zweryfikowany model fizyczny
+stanowiska. Wartości mocy i czasów impulsów nie sterują sprzętem ani nie
+kalibrują modelu; zakresy Rabi nie są realizowane w demonstracji Pulsed ODMR.
+
+No. points i Averages w formularzu T1 określają liczbę punktów demonstracji
+(maks. 1000) i poziom sztucznego szumu, także po przełączeniu na ODMR. W ODMR
+zakres osi pochodzi z Freq 1/2, a środek ilustracji z Freq. Domyślnych 50 punktów
+pojawia się w około 5 s, niezależnie od rzeczywistych czasów cyklu i liczby
+uśrednień. Oś Y dopasowuje się do danych; Signal Scale pozwala ustawić ją ręcznie.
+Parametry są blokowane podczas przebiegu. Dane i logi DEMO służą wyłącznie
+prezentacji UI i nie są dowodem działania aparatury.
+
+## Co można sprawdzić w domyślnym trybie offline
 
 - Układ z Figmy: duży wykres po lewej, parametry po prawej, tryby na dole.
 - Edycję parametrów i przełączanie CW ODMR / Pulsed ODMR / T1.
@@ -37,7 +73,7 @@ przesunięciami kanałów dla czytelności. Przy laserze aktywnym stanem niskim 
 oznacza proponowany stan ON. Polaryzacja i czasy wymagają potwierdzenia na stanowisku.
 Krótki impuls π może być widoczny jako pionowa kreska; wykres można przybliżyć.
 
-START, STOP i SAVE są nieaktywne. Połączenia diagnostyczne są uruchamiane wyłącznie
+Bez `--demo` START, STOP i SAVE są nieaktywne. Połączenia diagnostyczne są uruchamiane wyłącznie
 na żądanie z konsoli opisanej poniżej. Program nie wykonuje akwizycji ani
 dopasowania i nie tworzy wyników pomiarowych. No. points, Averages,
 częstotliwość i moc pozostają parametrami roboczymi. Podgląd nie realizuje całego
@@ -94,6 +130,8 @@ limit całego testu wynosi 30 s. Zamknięcie okna także kończy aktywny test.
 6. `src/nv_lab/ui/console.py` wyświetla logi z loggerów `nv_lab.*` i uruchamia
    diagnostykę. `src/nv_lab/hardware/diagnostics.py` odpowiada za wykrywanie VISA
    i identyfikację oscyloskopu; kod okna nie zawiera komend aparatury.
+7. `src/nv_lab/ui/demo.py` zawiera oddzielny generator danych syntetycznych
+   i obsługę START/STOP/SAVE przez timer Qt, bez importowania sterowników aparatury.
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v

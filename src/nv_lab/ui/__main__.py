@@ -1,9 +1,13 @@
 """Run the offline operator interface: python -m nv_lab.ui."""
 
 import sys
+import argparse
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="NV Lab operator interface")
+    parser.add_argument("--demo", action="store_true", help="Symulowany pomiar bez aparatury")
+    args = parser.parse_args()
     try:
         from PySide6.QtWidgets import QApplication
         from nv_lab.ui.main_window import MainWindow
@@ -14,7 +18,7 @@ def main() -> int:
 
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    window = MainWindow()
+    window = MainWindow(demo_mode=args.demo)
     window.show()
     return app.exec()
 

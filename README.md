@@ -11,9 +11,14 @@ Budowa modułowego programu do automatyzacji eksperymentów NV: CW ODMR, pulsed 
 - Eksport sekwencji do reprezentacji wzorców kanałów (bez przesyłania do sprzętu).
 - Testy jednostkowe standardowym `unittest`.
 - Demo CLI pokazujące czasy impulsów; **brak pomiarów rzeczywistych i brak symulowanych odczytów udających aparaturę**.
+- GUI PySide6 z podglądem sekwencji, konsolą i testami komunikacji na żądanie.
+- Osobny tryb `python -m nv_lab.ui --demo`: animowane wykresy i logi z jawnie
+  oznaczonymi danymi syntetycznymi; bez dostępu do aparatury.
 
 ## Co jeszcze nie działa
-- Faktyczne połączenia QCoDeS / VISA / Pulse Streamer, synchronizacja oscyloskopu, CW ODMR, detekcja, dopasowanie T1, GUI. W repozytorium są kontrakty i TODO, nie gotowe sterowniki.
+- Pełna akwizycja, synchronizacja oscyloskopu i Pulse Streamera, pomiary CW ODMR/T1
+  i dopasowanie wyników. Diagnostyka SG386/oscyloskopu nie oznacza walidacji
+  pomiarowej całego stanowiska.
 - Parametry lasera, polaryzacja bramkowania, opóźnienia torów, rzeczywiste okna detekcji i dopasowanie muszą zostać ustalone w laboratorium.
 
 ## Pierwsze kroki
@@ -22,6 +27,15 @@ python -m unittest discover -s tests -v
 PYTHONPATH=src python -m nv_lab.demo
 ```
 W Windows PowerShell: `$env:PYTHONPATH='src'; python -m nv_lab.demo`.
+
+Demonstracja interfejsu (po przygotowaniu `.venv`):
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e ".[gui]"
+.\.venv\Scripts\python.exe -m nv_lab.ui --demo
+```
+
+Wybierz tryb i kliknij START. Instrukcja: [docs/UI_IMPLEMENTACJA.md](docs/UI_IMPLEMENTACJA.md).
 
 ## Zasady bezpieczeństwa
 Uruchomienie w trybie sprzętowym wymaga zatwierdzonych limitów, weryfikacji okablowania i polaryzacji wejść oraz zgody opiekuna stanowiska. W projekcie **nie ma żadnego automatycznego połączenia z aparaturą**.
