@@ -1,5 +1,10 @@
 # Specyfikacja interfejsu operatora
 
+Pierwsza implementacja offline na podstawie eksportów z Figmy jest dostępna
+w `src/nv_lab/ui`. Uruchomienie: `python -m nv_lab.ui` po instalacji zależności
+`.[gui]`. Zakres, ograniczenia i instrukcja: [UI_IMPLEMENTACJA.md](UI_IMPLEMENTACJA.md).
+Poniższe wymagania opisują docelowy interfejs, a nie pełny stan implementacji.
+
 ```text
 ● SYSTEM: OFFLINE | ○ Pulse Streamer: unknown | ○ SG386: unknown | ○ Scope: USB/VISA | ○ Laser: via PS D3 (unverified)
 ┌─────────────────────────────────────────┬───────────────────────┐
