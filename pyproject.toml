@@ -9,5 +9,8 @@ description = "Offline educational architecture for an NV measurement automation
 requires-python = ">=3.10"
 dependencies = []
 
+[project.optional-dependencies]
+hardware = ["qcodes", "pyvisa", "pyvisa-py"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
