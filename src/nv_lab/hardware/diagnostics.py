@@ -21,11 +21,12 @@ def check_scope(manager, address: str, timeout_ms: int = 5000) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("list", "scope"))
+    parser.add_argument("action", choices=("list", "scope", "scope-scale"))
+    parser.add_argument("--channel",type=int,choices=(1,2,3,4),default=2)
     parser.add_argument("--address", default="")
     parser.add_argument("--visalib", default="@py")
     args = parser.parse_args()
-    if args.action == "scope" and not args.address.strip():
+    if args.action != "list" and not args.address.strip():
         parser.error("Podaj adres VISA oscyloskopu przez --address.")
     try:
         import pyvisa
@@ -41,9 +42,17 @@ def main() -> int:
                 if args.visalib == "@py":
                     print("USB z @py wymaga PyUSB, libusb i zgodnego sterownika USB. "
                           "Alternatywnie wybierz systemowy NI/Keysight VISA.")
-            else:
+            elif args.action == "scope":
                 check_scope(manager, args.address.strip())
                 print("OK: DSO-X 2014A odpowiedział na *IDN?. Sesja zamknięta.")
+            else:
+                from nv_lab.hardware.dsox2014a import DSOX2014A
+                with closing(manager.open_resource(args.address.strip(),open_timeout=5000)) as resource:
+                    resource.timeout=5000
+                    scope=DSOX2014A(resource,args.channel)
+                    print(scope.identify(),flush=True)
+                    result=scope.verify_word_ascii()
+                    print(f"WORD/ASCII OK: {result}. Zatrzymany przebieg; oscyloskop pozostaje w STOP.")
         return 0
     except Exception as exc:
         print(f"Błąd diagnostyki VISA: {exc}", file=sys.stderr)

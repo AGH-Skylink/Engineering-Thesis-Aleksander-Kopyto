@@ -1,11 +1,28 @@
 # Wymagania, testy i kryteria odbioru (PROPOZYCJE — do uzgodnienia)
 
+## Aktualizacja CW ODMR — 2026-11-16
+
+| Element | Weryfikacja w repozytorium | Stan |
+|---|---|---|
+| Sweep CW z parą RF OFF/ON i surowymi przebiegami | `tests/test_odmr.py` | działa w symulatorze |
+| Sterowniki SG386, Pulse Streamer, DSO-X 2014A | `tests/test_hardware_integration.py`, lokalne serwery SCPI | brak walidacji fizycznej |
+| Active-low laser, I/Q i limity toru | testy stanów, readback i konfiguracji | potwierdzić oscyloskopem na stanowisku |
+| STOP, awaria, błąd połączenia i cleanup | fault injection + GUI worker | testy programowe; fizyczny STOP do sprawdzenia |
+| JSON/CSV/JSONL i metadane symulacji | test odczytu plików i GUI | zaimplementowane |
+| Responsywne GUI, postęp i surowy przebieg | `tests/test_ui.py`, uruchomienie okna | zaimplementowane |
+| T1 / Pulsed ODMR / T2 echo | `tests/test_pulsed.py`, GUI i lokalny serwer WORD | implementacja; brak walidacji fizycznej |
+| Kontrola skali WORD/ASCII, AER/TER/COUN | testy adaptera | test na egzemplarzu do wykonania |
+
+Instrukcja testu stanowiskowego: [URUCHOMIENIE_ODMR.md](URUCHOMIENIE_ODMR.md).
+Poniżej zachowano pierwotny katalog wymagań docelowych; wpisy „plan” nie oznaczają
+ukończenia funkcji impulsowych ani potwierdzenia pracy na aparaturze.
+
 | ID | Wymaganie | Weryfikacja | Stan |
 |---|---|---|---|
-| FR-01 | Wybór CW ODMR / Pulsed ODMR / T1 | Test GUI | plan |
+| FR-01 | Wybór CW ODMR / Pulsed ODMR / T1 / T2 | Test GUI | zaimplementowane |
 | FR-02 | Konfiguracja częstotliwości i mocy MW z limitami | Testy granic + sprzęt | plan |
 | FR-03 | Generator wzorców laser, MW, trigger | Testy jednostkowe | demonstrator offline |
-| FR-04 | T1: pomiary referencja/π, sweep τ | Testy sekwencji + lab | demonstrator offline |
+| FR-04 | T1: pomiary referencja/π, sweep τ | Testy sekwencji + lab | działa w symulatorze; lab otwarty |
 | FR-05 | Podgląd *tej samej* sekwencji co wysyłana | Porównanie danych renderera i adaptera | plan |
 | FR-06 | Zapis surowych przebiegów, ratio, kontrastu i metadanych | Test odczytu datasetu | plan |
 | FR-07 | Diagnostyka urządzeń i czytelny stan połączeń | Fake adapters | plan |

@@ -1,4 +1,10 @@
-# Interfejs — podgląd offline i diagnostyka komunikacji
+# Interfejs — CW ODMR, symulatory i podgląd sekwencji
+
+Aktualizacja 2026-11-16: domyślne okno uruchamia **CW ODMR / Symulator urządzeń**
+z działającymi START/STOP/SAVE. Pełna instrukcja pomiaru, surowych danych,
+ustawień i przejścia na sprzęt: [URUCHOMIENIE_ODMR.md](URUCHOMIENIE_ODMR.md).
+Nowa warstwa akwizycji: `ui/acquisition.py`, silnik `experiments/cw_odmr.py`,
+symulatory `hardware/simulators.py`, konfiguracja `core/odmr.py`.
 
 Projekt wizualny pochodzi z eksportów autora w `ui/TV - 1.svg` i `ui/TV - 2.svg`.
 Implementację PySide6 i testy przygotowano przy pomocy AI; szczegóły w `ETYKA_AI.md`.
@@ -25,9 +31,9 @@ Nie publikuj logów konfiguracji zawierających dane dostępowe do indeksu.
 .\.venv\Scripts\python.exe -m nv_lab.ui --demo
 ```
 
-Tryb DEMO jest wybierany przy uruchomieniu. Żółty pasek, tytuł okna i wykresu
-oznaczają dane syntetyczne. Zwykłe uruchomienie bez `--demo` zachowuje tryb
-offline i rzeczywiste testy komunikacji na żądanie.
+Tryb starej ilustracji DEMO jest wybierany przy uruchomieniu flagą. Żółty pasek, tytuł okna i wykresu
+oznaczają dane syntetyczne. Zwykłe uruchomienie bez `--demo` udostępnia nowy
+silnik CW z wyborem symulatora albo sprzętu; nie łączy się automatycznie z aparaturą.
 
 1. Wybierz T1, CW ODMR lub Pulsed ODMR i kliknij START.
 2. Wykres aktualizuje się co 100 ms, a konsola wypisuje postęp i symulowane
@@ -55,29 +61,50 @@ uśrednień. Oś Y dopasowuje się do danych; Signal Scale pozwala ustawić ją 
 Parametry są blokowane podczas przebiegu. Dane i logi DEMO służą wyłącznie
 prezentacji UI i nie są dowodem działania aparatury.
 
-## Co można sprawdzić w domyślnym trybie offline
+## Podgląd sekwencji i akwizycja impulsowa
 
 - Układ z Figmy: duży wykres po lewej, parametry po prawej, tryby na dole.
-- Edycję parametrów i przełączanie CW ODMR / Pulsed ODMR / T1.
-- W T1 przycisk **PODGLĄD T1** generuje przebiegi logiczne dla Start τ lub Stop τ.
-- **Ref. subtraction** dodaje do podglądu tor MW cyklu bez π. Czasy lasera i triggera
-  są wspólne dla obu cykli. W tej wersji nie ma danych do odejmowania.
+- Edycja parametrów i przełączanie CW ODMR / Pulsed ODMR / T1 / T2 echo.
+- **PODGLĄD SEKWENCJI** używa kompilatora silnika `core/pulsed.py`; w T1 można
+  wybrać Start τ lub Stop τ. T2 pokazuje również przeciwną fazę I referencji.
+- T1 i Pulsed ODMR zawsze mierzą parę bez π / z π, ze wspólnymi czasami lasera
+  i triggera. T2 mierzy parę końcowych faz π/2: 180° / 0°.
 - Dodatkowe czasy i polaryzację lasera można rozwinąć przyciskiem pod wyborem punktu.
 - Zmiana parametrów T1 usuwa poprzedni podgląd, aby nie pokazywać nieaktualnej sekwencji.
-- Start τ większe niż Stop τ, impuls π większy niż Start τ (ograniczenie obecnego
-  kompilatora) lub trigger dłuższy niż odczyt powodują komunikat błędu.
-- Signal Scale określa symetryczny zakres osi Y pustego wykresu pomiarowego.
+- Niepoprawny zakres, czasy ochronne i okna poza rekordem powodują błąd.
+- Signal Scale określa zakres wyświetlania surowego przebiegu, nie fizyczną skalę wejścia.
 
 Podgląd pokazuje rzeczywiste poziomy logiczne wynikające z kompilatora, z pionowymi
 przesunięciami kanałów dla czytelności. Przy laserze aktywnym stanem niskim poziom 0
 oznacza proponowany stan ON. Polaryzacja i czasy wymagają potwierdzenia na stanowisku.
 Krótki impuls π może być widoczny jako pionowa kreska; wykres można przybliżyć.
 
-Bez `--demo` START, STOP i SAVE są nieaktywne. Połączenia diagnostyczne są uruchamiane wyłącznie
-na żądanie z konsoli opisanej poniżej. Program nie wykonuje akwizycji ani
-dopasowania i nie tworzy wyników pomiarowych. No. points, Averages,
-częstotliwość i moc pozostają parametrami roboczymi. Podgląd nie realizuje całego
-sweepu. Tryby ODMR mają na tym etapie formularze, bez wykonania eksperymentu.
+Silniki T1/Pulsed ODMR/T2 echo działają z symulatorami i adapterami sprzętu;
+fizyczna walidacja pozostaje otwarta. Okna tła, sygnału i referencji są edytowalne
+w **Czasy / okna / kalibracja π** i widoczne na surowych przebiegach. Dane obu
+faz, sekwencje i nastawy trafiają do JSON. Starszy `--demo` pozostaje oddzielną ilustracją.
+Pochodzenie czasów: [CZASY_I_WALIDACJA.md](CZASY_I_WALIDACJA.md).
+
+### Autoscale i Help
+
+Przycisk **Autoscale** na zakładce sekwencji przywraca cały zakres czasu i wszystkie
+kanały po przybliżeniu. Jest aktywny po poprawnym skompilowaniu sekwencji.
+
+Zakładka **Help · sprzęt** zawiera schemat połączeń PC, Pulse Streamera, SG386,
+lasera, toru MW, próbki NV, fotodetektora i oscyloskopu. HMP4040 pokazano jako
+urządzenie poza bieżącą pętlą. Numery kanałów wynikają z bieżącej konfiguracji.
+Schemat można otworzyć w dużym oknie, przybliżyć kółkiem myszy i przesuwać.
+
+Kontrolki oznaczają **ostatni wynik**, bez ciągłego monitoringu: zielony —
+poprawna identyfikacja/test, czerwony — błąd, szary — brak potwierdzenia,
+żółty — test w toku. Dopisek SIM oznacza symulację. Zielony nie potwierdza
+fizycznego światła ani mocy RF; laser sprzętowy pozostaje bez telemetrii.
+Po zakończeniu pomiaru komunikacja jest opisana jako zamknięta sesja.
+
+Domyślne VISA oscyloskopu ze starego v6:
+`USB0::0x0957::0x17A4::MY53160630::INSTR`. Wcześniej zapisane ustawienia mają
+pierwszeństwo; adres i numer seryjny nadal trzeba porównać z urządzeniem.
+Program nie dopasowuje jeszcze wyników ani nie wyznacza pola magnetycznego.
 
 ## Konsola i testy urządzeń
 
@@ -92,7 +119,7 @@ Do testów potrzebne są dodatkowe zależności:
 .\.venv\Scripts\python.exe -m pip install -e ".[gui,hardware]"
 ```
 
-1. Wybierz backend VISA. `@py` jest dostępny po instalacji `hardware` i obsługuje
+1. W trybie **Stanowisko — sprzęt** wybierz backend VISA. `@py` jest dostępny po instalacji `hardware` i obsługuje
    TCP/IP. Backend systemowy wymaga osobnej instalacji NI-VISA lub Keysight VISA.
 2. W polu SG386 wpisz pełny adres VISA albo IP (sam IP używa portu TCP 5025).
    Przycisk **Test SG386** uruchamia istniejący test sterownika QCoDeS:
@@ -105,6 +132,9 @@ Do testów potrzebne są dodatkowe zależności:
 5. Odczytaj odpowiedzi i wynik w konsoli. Każdy test zamyka sesję po zakończeniu.
    Status „test OK (sesja zamknięta)” potwierdza jednorazową komunikację,
    nie gotowość całego stanowiska do pomiaru.
+
+W domyślnym środowisku **Symulator urządzeń** te same przyciski testują obiekty
+symulatora, bez VISA i sieci. Lista obejmuje też HMP4040 i bramkę lasera.
 
 USB w backendzie `@py` wymaga dodatkowo PyUSB (`python -m pip install pyusb`),
 libusb i zgodnego sterownika USB. Sama instalacja `pyvisa-py` nie wystarcza.

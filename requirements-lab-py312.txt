@@ -1,0 +1,10 @@
+# Direct dependencies used for the Windows / Python 3.12.10 verification.
+# Transitive dependencies are resolved by pip; this is not a complete lockfile.
+-e .[gui,hardware]
+PySide6==6.12.0
+pyqtgraph==0.14.0
+qcodes==0.63.0
+PyVISA==1.16.2
+PyVISA-py==0.8.1
+pulsestreamer==2.1.2
+numpy==2.5.5

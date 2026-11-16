@@ -7,6 +7,8 @@ import codecs
 from datetime import datetime
 import logging
 import sys
+import tempfile
+from pathlib import Path
 
 from PySide6.QtCore import QObject, QProcess, QProcessEnvironment, QTimer, Signal, Slot
 from PySide6.QtWidgets import (
@@ -59,6 +61,9 @@ class DiagnosticsConsole(QWidget):
         self.scope_address.setPlaceholderText("Pełny adres VISA, np. USB0::…::INSTR")
         self.sg_button = QPushButton("Test SG386")
         self.scope_button = QPushButton("Test oscyloskopu")
+        self.scale_button = QPushButton("Skala WORD/ASCII (STOP)")
+        self.scale_button.setToolTip("Zatrzymuje oscyloskop i porównuje kodowanie tego samego przebiegu CH2. Nie uruchamia RF/lasera.")
+        addresses.addWidget(self.scale_button,1,3)
         for row, (name, edit, button) in enumerate((
             ("SG386", self.sg_address, self.sg_button),
             ("Oscyloskop", self.scope_address, self.scope_button),
@@ -92,6 +97,7 @@ class DiagnosticsConsole(QWidget):
         self.deadline.timeout.connect(self._timeout)
         self.busy = False
         self.demo_mode = False
+        self.simulation_provider = None
         self.demo_timer = QTimer(self)
         self.demo_timer.setSingleShot(True)
         self.demo_timer.setInterval(350)
@@ -99,10 +105,12 @@ class DiagnosticsConsole(QWidget):
         self.task = ""
         self.interrupted = False
         self._buffer = ""
+        self._report_path = None
         self._decoder = codecs.getincrementaldecoder("utf-8")("replace")
         self.discover_button.clicked.connect(lambda: self.start_check("list"))
         self.sg_button.clicked.connect(lambda: self.start_check("sg386"))
         self.scope_button.clicked.connect(lambda: self.start_check("scope"))
+        self.scale_button.clicked.connect(lambda: self.start_check("scope-scale"))
         self.cancel_button.clicked.connect(self.cancel)
 
         self.bridge = LogBridge(self)
@@ -139,10 +147,19 @@ class DiagnosticsConsole(QWidget):
                 arguments += ["--visalib", backend]
         else:
             arguments = ["-u", "-m", "nv_lab.hardware.diagnostics", task, "--visalib", backend]
-            if task == "scope":
+            if task in ("scope","scope-scale"):
                 arguments += ["--address", address]
+            if task == "scope-scale":
+                arguments += ["--channel",str(getattr(self,"scope_channel",2))]
         self.task = task
         self.interrupted = False
+        if getattr(sys,"frozen",False):
+            with tempfile.NamedTemporaryFile(prefix='nv-lab-diagnostic-',suffix='.txt',delete=False) as report:
+                self._report_path=Path(report.name)
+            # The bundled executable is the worker, not a Python interpreter.
+            module_args=arguments[3:]
+            arguments=['--diagnostic','sg386' if task=='sg386' else 'scope',
+                       '--report',str(self._report_path),*module_args]
         self._buffer = ""
         self._decoder.reset()
         self._set_busy(True)
@@ -157,7 +174,7 @@ class DiagnosticsConsole(QWidget):
 
     def _set_busy(self, busy: bool):
         self.busy = busy
-        for widget in (self.sg_button, self.scope_button, self.discover_button,
+        for widget in (self.sg_button, self.scope_button, self.scale_button, self.discover_button,
                        self.sg_address, self.scope_address, self.backend):
             widget.setEnabled(not busy)
         if self.demo_mode:
@@ -176,6 +193,7 @@ class DiagnosticsConsole(QWidget):
             return
         self.deadline.stop()
         self._read_output()
+        self._read_report()
         self._buffer += self._decoder.decode(b"", final=True)
         if self._buffer:
             self.append_message(self._buffer.rstrip("\r"))
@@ -188,6 +206,18 @@ class DiagnosticsConsole(QWidget):
             f"{'OK' if success else 'przerwano' if self.interrupted else 'błąd'} (kod {exit_code})."
         )
         self._set_busy(False)
+
+    def _read_report(self):
+        if self._report_path is not None:
+            try:
+                message=self._report_path.read_text(encoding='utf-8')
+                for line in message.splitlines():self.append_message(line)
+            except OSError as exc:
+                self.append_message(f"ERROR | Nie odczytano raportu diagnostyki: {exc}")
+            finally:
+                try:self._report_path.unlink(missing_ok=True)
+                except OSError as exc:self.append_message(f"WARNING | Nie usunięto pliku tymczasowego: {exc}")
+                self._report_path=None
 
     def _process_error(self, error):
         if error == QProcess.ProcessError.FailedToStart:
@@ -220,14 +250,25 @@ class DiagnosticsConsole(QWidget):
             self.interrupted = True
             self.process.kill()
             self.process.waitForFinished(1500)
+        self._read_report()
 
     def _demo_finished(self):
         replies = {
             "sg386": "SG386-DEMO: IDN symulowany; FREQ = 2870000000 Hz; AMPR = -30 dBm.",
             "scope": "DSO-X 2014A-DEMO: identyfikacja symulowana; generator próbek gotowy.",
+            "scope-scale": "SYMULACJA: brak prawdziwego porównania WORD/ASCII. Wykonaj test na oscyloskopie.",
             "list": "Zasoby symulowane: DEMO::SG386, DEMO::DSOX2014A, DEMO::PULSESTREAMER.",
         }
-        self.append_message(f"DEMO | {replies[self.task]}")
+        if self.simulation_provider is not None:
+            try:
+                response = self.simulation_provider(self.task)
+            except Exception as exc:
+                self.append_message(f"SIM | Błąd testu: {exc}")
+                self._set_busy(False)
+                return
+        else:
+            response = replies[self.task]
+        self.append_message(f"SIM/DEMO | {response}")
         if self.task != "list":
             self.test_status.emit(self.task, "symulowany test OK")
         self._set_busy(False)

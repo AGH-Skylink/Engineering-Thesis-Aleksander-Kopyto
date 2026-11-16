@@ -2,6 +2,42 @@
 
 Zakres użycia generatywnej AI należy uzgodnić z opiekunem. Nie podpisuj bez zmian poniższego tekstu; uzupełnij fakty.
 
+## Ustalenie autora i prace z 2026-11-16
+
+Autor poinformował w rozmowie, że promotor zgodził się na generowanie kodu przez AI,
+i zlecił rozwój programu, ze szczególnym priorytetem CW ODMR oraz symulatorów.
+To zapis deklaracji autora; agent nie kontaktował się z promotorem ani nie
+weryfikował niezależnie treści tej zgody. Własna analiza i ocena autora pozostają
+niezbędne i nie są zastępowane testami wykonywanymi przez agenta.
+
+OpenAI Codex przygotował w tej sesji:
+
+- model konfiguracji i danych CW ODMR, pętlę RF OFF/ON, kontrolę limitów i cleanup;
+- stanowe symulatory SG386, Pulse Streamera, oscyloskopu, bramki lasera i HMP4040;
+- rozbudowę przekazanego sterownika SG386, adaptery oscyloskopu i stanowiska,
+  opcjonalny monitor HMP4040; bez kopiowania całych implementacji historycznych;
+- wątek akwizycji Qt, ustawienia połączeń/kanałów/IQ/awarii, uporządkowanie GUI,
+  postęp i podgląd surowych przebiegów, automatyczny zapis i CLI;
+- testy jednostkowe, integracyjne i GUI oraz dokumentację uruchomienia i źródeł.
+
+Wykorzystano przekazane `prace_mrozka/NV-Mariusz(1).py`, `NV-Mariusz_v6(1).py`
+i fragmenty doktoratu `DOKTORSKA_MM.pdf` jako materiały referencyjne. Ich autorstwo
+nie jest przypisywane autorowi nowej pracy ani agentowi. Nie uruchamiano starego
+kodu i nie zmieniano tych plików. Użytkownik potwierdził odwróconą polaryzację
+bramki lasera; pozostałe nastawy sprzętowe wymagają sprawdzenia na stanowisku.
+
+Przejrzano instrukcje producentów, wskazane w [SPRZET_I_ZRODLA.md](SPRZET_I_ZRODLA.md).
+Agent wykonał testy na symulatorach i lokalnych serwerach SCPI, nie na rzeczywistym
+stanowisku. Symulacje i ich pliki są jawnie oznaczone. Nie powstały w tej sesji
+eksperymentalne wyniki ODMR ani pomiary pola magnetycznego.
+
+Samodzielna ocena kodu, decyzje o przyjęciu, modyfikacje autora i testy laboratoryjne:
+[do uzupełnienia przez autora po przeglądzie].
+
+Raport programowej weryfikacji agenta (Python 3.12, 44 testy i uruchomienia GUI/CLI):
+[WYNIKI_TESTOW_2026-11-16.md](WYNIKI_TESTOW_2026-11-16.md). Raport nie deklaruje
+przeprowadzenia własnej weryfikacji przez autora ani testu aparatury.
+
 | Data | Narzędzie | Element | Zakres | Jak zweryfikowano / wkład własny | Decyzja |
 |---|---|---|---|---|---|
 | 2026-11-02 | ChatGPT GPT-6 | Struktura projektu | Konsultacja architektury, proponowane wymagania i testy | [Do uzupełnienia] | [Do uzupełnienia] |
@@ -70,7 +106,47 @@ Poniższe zasady organizują pracę w repozytorium; nie zastępują ustaleń z p
 - Dopuszczony zakres AI ustalamy z promotorem. Skala AGH przewiduje różne poziomy wykorzystania; sama jej publikacja nie oznacza zgody na dowolny zakres w tej pracy.
 
 ## Deklaracja do uzgodnienia (przykład, nie stwierdzenie faktów)
-„W trakcie przygotowania projektu korzystano z ChatGPT (OpenAI) jako narzędzia pomocniczego do porządkowania wymagań, przeglądu dokumentacji technicznej, analizy przekazanego kodu oraz przygotowania edukacyjnych przykładów testów. Każdy wykorzystany fragment poddano indywidualnej analizie i weryfikacji [opisać dokładnie]. Samodzielny wkład autora obejmuje [wypisać wyłącznie rzeczywiście wykonane działania].”
+
+### Uzupełnienie rejestru — T1, Pulsed ODMR i T2, 2026-11-16
+
+Kolejne zmiany na bezpośrednią prośbę autora: przygotowano pakowanie Windows EXE
+(PyInstaller, skrypt budowania i punkt wejścia bez konsoli), zachowując działanie
+diagnostyki w osobnym procesie bez wymogu zainstalowanego Pythona. Dodano
+historyczny adres VISA oscyloskopu, przycisk Autoscale oraz zakładkę Help ze
+schematem połączeń i kontrolkami ostatniego wyniku komunikacji. Symulacja jest
+oznaczona SIM; kontrolki nie są przedstawiane jako fizyczny pomiar stanu wyjść.
+Testy i oglądanie interfejsu wykonuje agent; autor nadal uzupełnia własną ocenę.
+Kontrolę końcowego EXE z 2026-11-17 opisuje `WYNIKI_EXE_2026-11-17.md`:
+cztery serie symulatora, diagnostyka przez lokalne serwery oraz testy z Pythonem
+usuniętym z PATH procesu EXE. Nie wykonano testów laboratoryjnych.
+
+Na prośbę użytkownika AI przygotowała silnik pomiarów impulsowych, kompilator
+sekwencji z jawną definicją czasu, okna integracji i normalizację, symulatory,
+integrację GUI oraz profil oscyloskopu z zewnętrznym triggerem i WORD/LSBF.
+Niejasne „drugie takie” zinterpretowano roboczo jako T2 echo Hahna, po zadaniu
+pytania doprecyzowującego. T2 ma cykl fazy ostatniego π/2: 0°/180°.
+Zakres nie obejmuje pomiaru Rabi, dopasowania T1/T2 ani analizy niepewności.
+
+Agent przeczytał fragmenty wykonawcze `NV-Mariusz_v6(1).py` dotyczące czasów,
+oscyloskopu, MW/I/Q i ECHO; nie uruchamiał ani nie zmieniał starych skryptów.
+Sprawdził komendy i format danych w instrukcji Keysight oraz API Swabian.
+Pochodzenie czasów, brak pliku PARAMETERS.txt, demonstracyjne π/π/2 i zakresy
+opisano w `CZASY_I_WALIDACJA.md`. Nowe definicje τ i okna nie są przedstawiane
+jako odtworzenie kalibracji promotora.
+
+Weryfikacja agenta obejmuje testy silnika, fazowania, równych odstępów echa,
+WORD/preambuły, świeżego triggera, niepełnego uśredniania, porównania WORD/ASCII,
+lokalne serwery SCPI z rzeczywistym PyVISA i obiektami Sequence producenta,
+przepływ GUI, zapis par przebiegów oraz oglądanie zrzutów. Podczas inspekcji
+wykryto i poprawiono znikające wartości pól liczbowych przy Qt 6.12/NoButtons;
+dodano kontrolę geometrii pola edycji. Zrzuty w `docs/images/` zawierają wyłącznie
+dane syntetyczne. Klient Pulse Streamera w integracji jest atrapą.
+
+Nie potwierdzono połączenia ani pomiaru na fizycznym stanowisku. Weryfikacja
+autora, ustalenia dotyczące kalibracji oraz wyniki laboratoryjne: **do uzupełnienia
+przez autora po rzeczywistym wykonaniu**. Szczegółowy raport testów:
+`WYNIKI_TESTOW_2026-11-16.md`.
+„W trakcie przygotowania projektu korzystano z ChatGPT i OpenAI Codex do porządkowania wymagań, przeglądu dokumentacji technicznej, analizy przekazanego kodu oraz generowania fragmentów interfejsu, sterowników, symulatorów, silnika CW ODMR i testów. Zakres oraz pochodzenie poszczególnych elementów opisano w rejestrze wykorzystania AI. Weryfikacja wykonana samodzielnie przez autora obejmowała [wpisać wyłącznie wykonane działania i dowody]. Samodzielny wkład autora obejmuje [wypisać wyłącznie rzeczywiście wykonane działania].”
 
 Nie ujawniaj danych poufnych laboratorium i nie przedstawiaj wyników syntetycznych jako eksperymentalnych. Pamiętaj o prawach do udostępnionego kodu historycznego.
 

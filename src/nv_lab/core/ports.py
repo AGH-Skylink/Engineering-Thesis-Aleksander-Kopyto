@@ -1,6 +1,7 @@
-"""Interfaces only: hardware implementation is intentionally absent."""
+"""Hardware contracts; CW adapters and simulators implement the same operations."""
 from typing import Protocol
 from nv_lab.core.sequences import CompiledSequence
+from nv_lab.core.odmr import StationConfig, Waveform
 
 class PulseBackend(Protocol):
     def upload(self, sequence: CompiledSequence) -> None: ...
@@ -10,8 +11,29 @@ class PulseBackend(Protocol):
 
 class MicrowaveSource(Protocol):
     def configure(self, frequency_hz: float, power_dbm: float) -> None: ...
+    def set_output(self, enabled: bool) -> None: ...
     def disable_output(self) -> None: ...
 
 class Oscilloscope(Protocol):
     def arm(self) -> None: ...
     def fetch_waveform(self) -> tuple[list[float], float]: ...
+
+
+class CWOscilloscope(Protocol):
+    def configure(self, points: int) -> None: ...
+    def capture(self) -> Waveform: ...
+
+
+class CWGate(Protocol):
+    def constant(self, laser_on: bool, mw_on: bool) -> None: ...
+
+
+class CWStation(Protocol):
+    simulated: bool
+    config: StationConfig
+    identities: dict
+    rf: MicrowaveSource
+    pulse: CWGate
+    scope: CWOscilloscope
+    def open(self) -> None: ...
+    def shutdown(self) -> list[str]: ...

@@ -1,6 +1,10 @@
 __pycache__/
 .pytest_cache/
 .venv/
+.venv312/
+build/
+dist/
+runs/
 *.egg-info/
 *.pyc
 *.sqlite

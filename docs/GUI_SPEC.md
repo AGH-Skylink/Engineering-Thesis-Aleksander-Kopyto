@@ -1,9 +1,12 @@
 # Specyfikacja interfejsu operatora
 
-Pierwsza implementacja offline na podstawie eksportów z Figmy jest dostępna
+Implementacja na podstawie eksportów z Figmy jest dostępna
 w `src/nv_lab/ui`. Uruchomienie: `python -m nv_lab.ui` po instalacji zależności
 `.[gui]`. Zakres, ograniczenia i instrukcja: [UI_IMPLEMENTACJA.md](UI_IMPLEMENTACJA.md).
-Poniższe wymagania opisują docelowy interfejs, a nie pełny stan implementacji.
+CW/Pulsed ODMR, T1 i T2 echo mają silniki, symulatory i adaptery rzeczywistych urządzeń; walidacja
+fizyczna pozostaje do wykonania. Instrukcja: [URUCHOMIENIE_ODMR.md](URUCHOMIENIE_ODMR.md).
+Pochodzenie czasów i protokół kontroli: [CZASY_I_WALIDACJA.md](CZASY_I_WALIDACJA.md).
+Poniżej zachowano pierwotny projekt docelowy; fit i pole magnetyczne nie są zaimplementowane.
 
 ```text
 ● SYSTEM: OFFLINE | ○ Pulse Streamer: unknown | ○ SG386: unknown | ○ Scope: USB/VISA | ○ Laser: via PS D3 (unverified)
