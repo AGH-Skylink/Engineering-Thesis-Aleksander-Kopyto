@@ -14,7 +14,7 @@ Do USB nadal potrzebna jest zainstalowana biblioteka NI/Keysight VISA.
 ```powershell
 py -3.12 -m venv .venv312
 .\.venv312\Scripts\python.exe -m pip install --upgrade pip
-.\.venv312\Scripts\python.exe -m pip install -e ".[gui,hardware]"
+.\.venv312\Scripts\python.exe -m pip install --only-binary=h5py -e ".[gui,hardware]"
 .\.venv312\Scripts\python.exe -m nv_lab.ui
 ```
 

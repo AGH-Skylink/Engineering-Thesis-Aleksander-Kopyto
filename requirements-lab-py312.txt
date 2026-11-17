@@ -1,5 +1,6 @@
 # Direct dependencies used for the Windows / Python 3.12.10 verification.
 # Transitive dependencies are resolved by pip; this is not a complete lockfile.
+--only-binary=h5py
 -e .[gui,hardware]
 PySide6==6.12.0
 pyqtgraph==0.14.0

@@ -20,7 +20,8 @@ try {
     if ($Install) {
         & $interpreterPath -m pip install --upgrade pip
         if ($LASTEXITCODE -ne 0) { throw 'Aktualizacja pip nie powiodla sie.' }
-        & $interpreterPath -m pip install -e '.[gui,hardware]'
+        # h5py wheels include HDF5; a source build requires a separate HDF5 SDK.
+        & $interpreterPath -m pip install --only-binary=h5py -e '.[gui,hardware]'
         if ($LASTEXITCODE -ne 0) { throw 'Instalacja zaleznosci nie powiodla sie.' }
     }
     if ($Demo) {

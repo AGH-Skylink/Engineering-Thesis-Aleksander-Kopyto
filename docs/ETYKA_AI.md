@@ -120,6 +120,13 @@ Kontrolę końcowego EXE z 2026-11-17 opisuje `WYNIKI_EXE_2026-11-17.md`:
 cztery serie symulatora, diagnostyka przez lokalne serwery oraz testy z Pythonem
 usuniętym z PATH procesu EXE. Nie wykonano testów laboratoryjnych.
 
+2026-11-17, zgłoszenie błędu `hdf5.dll` podczas instalacji pip: AI dodała
+`--only-binary=h5py` do obu skryptów instalacji i pliku requirements oraz opisała
+procedurę naprawy. Bez pełnego logu budowanie h5py ze źródeł pozostaje hipotezą.
+Agent sprawdził oficjalną dokumentację h5py/pip, pobrał wheel Windows x64 dla
+Pythona 3.12 i potwierdził obecność `h5py/hdf5.dll` oraz `h5py/hdf5_hl.dll`.
+Lokalny import h5py działał; nie potwierdzono naprawy na komputerze użytkownika.
+
 Na prośbę użytkownika AI przygotowała silnik pomiarów impulsowych, kompilator
 sekwencji z jawną definicją czasu, okna integracji i normalizację, symulatory,
 integrację GUI oraz profil oscyloskopu z zewnętrznym triggerem i WORD/LSBF.

@@ -8,7 +8,7 @@ try {
         throw 'Najpierw uruchom scripts\Start-NVLab.ps1 -Install (Python 3.12).'
     }
     if ($Install) {
-        & $interpreterPath -m pip install -e '.[gui,hardware]' 'pyinstaller>=6,<7'
+        & $interpreterPath -m pip install --only-binary=h5py -e '.[gui,hardware]' 'pyinstaller>=6,<7'
         if ($LASTEXITCODE -ne 0) { throw 'Instalacja zaleznosci nie powiodla sie.' }
     }
     & $interpreterPath -m PyInstaller --noconfirm NVLab.spec

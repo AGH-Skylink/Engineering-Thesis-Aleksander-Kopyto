@@ -10,13 +10,34 @@ PowerShell, katalog repozytorium; Python **3.12**, nie stare środowisko 3.9:
 ```powershell
 py -3.12 -m venv .venv312
 .\.venv312\Scripts\python.exe -m pip install --upgrade pip
-.\.venv312\Scripts\python.exe -m pip install -e ".[gui,hardware]"
+.\.venv312\Scripts\python.exe -m pip install --only-binary=h5py -e ".[gui,hardware]"
 .\.venv312\Scripts\python.exe -m nv_lab.ui
 ```
 
 Jeżeli środowisko już istnieje, wystarczy instalacja aktualnego projektu i ostatnie
 polecenie. Interpreter sprawdzisz przez `.\.venv312\Scripts\python.exe --version`.
 W VS Code wybierz ten sam interpreter. Stare `.venv` może nadal używać Pythona 3.9.
+
+### Błąd `hdf5.dll` podczas instalacji pip
+
+Jeśli komunikat pochodzi z budowania `h5py`, pip próbuje kompilować zależność
+QCoDeS i wymaga wtedy osobnej biblioteki HDF5. Preferujemy gotowy wheel:
+
+```powershell
+.\.venv312\Scripts\python.exe -m pip install --upgrade pip
+.\.venv312\Scripts\python.exe -m pip install --only-binary=h5py -e ".[gui,hardware]"
+.\.venv312\Scripts\python.exe -c "import h5py; print(h5py.version.info)"
+```
+
+`--only-binary=h5py` blokuje kompilację tego pakietu. Jeśli pip nie znajdzie
+zgodnego wheel, zgłosi to bez rozpoczynania budowy HDF5. Wtedy sprawdź pełny
+log, wersję i architekturę interpretera oraz skonfigurowane źródło pakietów.
+Sprawdzone środowisko projektu to Python 3.12 x64; sama nazwa `.venv312`
+nie gwarantuje wersji interpretera. Nie instaluj przypadkowej DLL ręcznie.
+Źródło: [h5py — zalecana instalacja gotowych pakietów](https://docs.h5py.org/en/stable/build.html).
+
+Skrypty `Start-NVLab.ps1 -Install` i `Build-EXE.ps1 -Install` używają tej opcji.
+Uruchomienie gotowego `dist/NVLab.exe` nie wymaga instalowania pakietów przez pip.
 
 Alternatywnie: `.\scripts\Start-NVLab.ps1 -Install` przygotowuje środowisko i
 uruchamia okno; później wystarcza `.\scripts\Start-NVLab.ps1`. Jeżeli polityka
