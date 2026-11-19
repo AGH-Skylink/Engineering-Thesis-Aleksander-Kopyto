@@ -1,10 +1,21 @@
-"""DSO-X 2014A fresh CW captures, unsigned BYTE data and preamble calibration.
+"""InfiniiVision DSO-X 2014A/3034A captures and preamble calibration.
 
 Keysight 2000 X-Series Programmer's Guide: pp. 177, 737, 744–745, 755.
 """
 import math
 import time
 from nv_lab.core.odmr import Waveform
+
+SUPPORTED_MODELS={'DSOX2014A':'DSO-X 2014A','DSOX3034A':'DSO-X 3034A'}
+
+
+def scope_model(identity):
+    fields=identity.strip().split(',')
+    model=fields[1].replace(' ','').replace('-','').upper() if len(fields)>1 else ''
+    if model not in SUPPORTED_MODELS:
+        raise ValueError('Urządzenie nie identyfikuje się jako obsługiwany oscyloskop. '
+            f'Oczekiwano DSO-X 2014A lub DSO-X 3034A, otrzymano: {identity}')
+    return model
 
 
 def decode_waveform(preamble: str, codes, channel=1, word=False, averaged=False):
@@ -29,20 +40,18 @@ def decode_waveform(preamble: str, codes, channel=1, word=False, averaged=False)
     return trace
 
 
-class DSOX2014A:
+class InfiniiVisionScope:
     def __init__(self, resource, channel=1):
         self.resource, self.channel = resource, channel
         self.identified = False
+        self.model = None
         resource.read_termination = "\n"
         resource.write_termination = "\n"
         resource.chunk_size = 1024 * 1024
 
     def identify(self):
         identity = self.resource.query("*IDN?").strip()
-        fields = identity.split(",")
-        model = fields[1].replace(" ", "").replace("-", "").upper() if len(fields) > 1 else ""
-        if model != "DSOX2014A":
-            raise ValueError(f"Oczekiwano DSO-X 2014A, otrzymano: {identity}")
+        self.model=scope_model(identity)
         self.identified = True
         return identity
 
@@ -71,6 +80,7 @@ class DSOX2014A:
                                                   expect_termination=True)
         trace = decode_waveform(preamble, codes, self.channel)
         trace.metadata["setup"] = dict(self.setup)
+        trace.metadata['scope_model']=self.model
         return trace
 
     def close(self):
@@ -133,7 +143,7 @@ class DSOX2014A:
         if trace.metadata["clipped"]:
             raise ValueError("Obcięty przebieg WORD — popraw skalę/offset oscyloskopu.")
         trace.metadata.update({"profile":"legacy-trigger-WORD-LSBF-preamble","trigger_verified":True,
-                               "waveform_count":count})
+                               "waveform_count":count,"scope_model":self.model})
         return trace
 
     def verify_word_ascii(self):
@@ -162,3 +172,7 @@ class DSOX2014A:
         if not math.isfinite(error) or error>tolerance:
             raise ValueError(f"WORD/ASCII: niezgodne skalowanie ({error:g} V > {tolerance:g} V).")
         return {"max_difference_v":error,"tolerance_v":tolerance,"samples":len(ascii_values)}
+
+
+# Preserve imports used by older scripts; both models use the verified shared profile.
+DSOX2014A=InfiniiVisionScope

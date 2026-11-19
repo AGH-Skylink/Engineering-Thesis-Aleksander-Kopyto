@@ -31,7 +31,8 @@ def main():
         env['NV_LAB_SMOKE_SCOPE']=config.scope_address
         result=subprocess.run([str(executable),'--smoke-test',str(output/'gui')],env=env,timeout=120)
         report=json.loads((output/'gui'/'report.json').read_text(encoding='utf-8'))
-        if result.returncode or not report.get('ok') or not report.get('gui_subprocess_diagnostic'):
+        if (result.returncode or not report.get('ok') or not report.get('gui_subprocess_diagnostic')
+                or not report.get('libusb_backend_available')):
             raise RuntimeError(json.dumps(report,ensure_ascii=False,indent=2))
         worker_report=output/'sg386.txt'
         result=subprocess.run([str(executable),'--diagnostic','sg386','--report',str(worker_report),

@@ -1,6 +1,6 @@
 """Real CW station; lazy dependencies, no hardware access at module import."""
 from uuid import uuid4
-from nv_lab.hardware.dsox2014a import DSOX2014A
+from nv_lab.hardware.dsox2014a import InfiniiVisionScope
 
 
 class PulseStreamerGate:
@@ -86,7 +86,7 @@ class RealStation:
             "serial": device.getSerial(), "firmware": device.getFirmwareVersion()}
         resource = self.manager.open_resource(self.config.scope_address.strip(), open_timeout=timeout_ms)
         resource.timeout = timeout_ms
-        self.scope = DSOX2014A(resource, self.config.scope_channel)
+        self.scope = InfiniiVisionScope(resource, self.config.scope_channel)
         self.identities["scope"] = self.scope.identify()
         self.identities["laser"] = "External TTL gate; model not identified, no laser-current API"
 

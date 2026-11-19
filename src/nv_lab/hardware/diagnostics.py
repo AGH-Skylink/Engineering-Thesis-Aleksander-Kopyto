@@ -1,4 +1,4 @@
-"""Read-only VISA discovery and DSO-X 2014A identification check."""
+"""VISA discovery and InfiniiVision DSO-X 2014A/3034A diagnostics."""
 
 import argparse
 from contextlib import closing
@@ -12,10 +12,8 @@ def check_scope(manager, address: str, timeout_ms: int = 5000) -> str:
         scope.write_termination = "\n"
         identity = scope.query("*IDN?").strip()
         print(f"IDN: {identity}", flush=True)
-        fields = identity.split(",")
-        model = fields[1].replace("-", "").replace(" ", "").upper() if len(fields) > 1 else ""
-        if model != "DSOX2014A":
-            raise ValueError("Urządzenie nie identyfikuje się jako DSO-X 2014A.")
+        from nv_lab.hardware.dsox2014a import scope_model
+        scope_model(identity)
         return identity
 
 
@@ -44,18 +42,19 @@ def main() -> int:
                           "Alternatywnie wybierz systemowy NI/Keysight VISA.")
             elif args.action == "scope":
                 check_scope(manager, args.address.strip())
-                print("OK: DSO-X 2014A odpowiedział na *IDN?. Sesja zamknięta.")
+                print("OK: obsługiwany oscyloskop odpowiedział na *IDN?. Sesja zamknięta.")
             else:
-                from nv_lab.hardware.dsox2014a import DSOX2014A
+                from nv_lab.hardware.dsox2014a import InfiniiVisionScope
                 with closing(manager.open_resource(args.address.strip(),open_timeout=5000)) as resource:
                     resource.timeout=5000
-                    scope=DSOX2014A(resource,args.channel)
+                    scope=InfiniiVisionScope(resource,args.channel)
                     print(scope.identify(),flush=True)
                     result=scope.verify_word_ascii()
                     print(f"WORD/ASCII OK: {result}. Zatrzymany przebieg; oscyloskop pozostaje w STOP.")
         return 0
     except Exception as exc:
-        print(f"Błąd diagnostyki VISA: {exc}", file=sys.stderr)
+        from nv_lab.hardware.visa_support import connection_error
+        print(f"Błąd diagnostyki VISA: {connection_error(exc,args.address,args.visalib)}", file=sys.stderr)
         return 1
 
 

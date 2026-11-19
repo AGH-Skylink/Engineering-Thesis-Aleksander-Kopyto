@@ -15,7 +15,7 @@ AVAILABLE = all(importlib.util.find_spec(name) for name in ("pyvisa_py", "qcodes
 
 
 @contextmanager
-def scpi_station(bad_scope=False,pulsed=False):
+def scpi_station(bad_scope=False,pulsed=False,scope_model='DSO-X3034A'):
     state = {"frequency": 2.87e9, "power": -30.0, "rf": 0, "modulation": 0,
              "type": 0, "qfnc": 0, "sg_commands": [], "scope_commands": [], "pulse_states": []}
     state['stream_records']=[]
@@ -45,7 +45,7 @@ def scpi_station(bad_scope=False,pulsed=False):
                 command = line.decode().strip().upper()
                 state["scope_commands"].append(command)
                 if command == "*IDN?":
-                    reply = "UNKNOWN,WRONGMODEL,SN,1" if bad_scope else "AGILENT TECHNOLOGIES,DSO-X 2014A,LOCALTEST,1"
+                    reply = "UNKNOWN,WRONGMODEL,SN,1" if bad_scope else f"AGILENT TECHNOLOGIES,{scope_model},LOCALTEST,1"
                 elif command == ":WAV:PRE?":
                     reply = "1,2,1000,16,2e-8,0,0,0.00001,0,32768" if pulsed else "0,0,100,1,1e-6,0,0,0.001,0,128"
                 elif command == ":WAV:COUN?":
@@ -113,6 +113,12 @@ def scpi_station(bad_scope=False,pulsed=False):
 
 @unittest.skipUnless(AVAILABLE, "Install [hardware] to test real adapters against local servers")
 class AdapterIntegrationTests(unittest.TestCase):
+    def test_2014a_remains_supported_with_shared_capture_profile(self):
+        with scpi_station(scope_model='DSO-X 2014A') as (config,state,pulse):
+            with patch('pulsestreamer.PulseStreamer',pulse):
+                result=run_cw(RealStation(config),CWConfig(points=2,averages=1,waveform_points=100,settling_s=0))
+            self.assertEqual(result.state,'COMPLETED',result.error)
+            self.assertEqual(result.points[0].rf_on[0].metadata['scope_model'],'DSOX2014A')
     def test_echo_real_adapters_send_opposite_i_phases_with_identical_digital_timing(self):
         from nv_lab.core.pulsed import PulsedConfig
         from nv_lab.experiments.pulsed import run_pulsed
@@ -154,6 +160,7 @@ class AdapterIntegrationTests(unittest.TestCase):
                                       waveform_points=100, settling_s=0))
             self.assertEqual(result.state, "COMPLETED", (result.error, result.cleanup_errors))
             self.assertEqual(len(result.points), 3)
+            self.assertEqual(result.points[0].rf_on[0].metadata['scope_model'],'DSOX3034A')
             self.assertAlmostEqual(result.points[0].signal_v, 0.068)
             self.assertAlmostEqual(result.points[0].reference_v, 0.070)
             self.assertAlmostEqual(result.points[0].contrast, 2/70)

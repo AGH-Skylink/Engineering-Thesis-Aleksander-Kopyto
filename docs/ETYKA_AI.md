@@ -109,6 +109,19 @@ Poniższe zasady organizują pracę w repozytorium; nie zastępują ustaleń z p
 
 ### Uzupełnienie rejestru — T1, Pulsed ODMR i T2, 2026-11-16
 
+2026-11-17, poprawka obsługi oscyloskopu: po zgłoszeniu przez użytkownika
+rzeczywistego IDN 3034A AI rozszerzyła kontrolę modeli i wspólny sterownik
+InfiniiVision o DSO-X 3034A, zachowując 2014A i odrzucanie nieznanych modeli.
+Przeczytano fragmenty oficjalnego podręcznika 3000 X dotyczące DIGitize,
+triggerów, uśredniania i danych BYTE/WORD. Dodano model do symulatora i etykiet
+UI oraz testy jego identyfikacji i przepływu danych przez lokalne serwery SCPI.
+Osobno dodano PyUSB i libusb-package do instalacji/EXE oraz instrukcje backendów.
+73 testy źródeł zakończyły się powodzeniem. Agent nie wykonywał pomiaru na
+fizycznym 3034A; odpowiedź IDN pochodzi ze zgłoszenia użytkownika.
+Ponownie sprawdzono gotowy EXE: cztery serie symulacyjne, diagnostyka 3034A
+przez localhost, test SG386 oraz import PyUSB i załadowanie DLL libusb.
+Aktualny SHA-256 i raport zapisano w `WYNIKI_EXE_2026-11-17.md`.
+
 Kolejne zmiany na bezpośrednią prośbę autora: przygotowano pakowanie Windows EXE
 (PyInstaller, skrypt budowania i punkt wejścia bez konsoli), zachowując działanie
 diagnostyki w osobnym procesie bez wymogu zainstalowanego Pythona. Dodano

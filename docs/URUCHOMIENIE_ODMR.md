@@ -3,6 +3,11 @@
 Stan implementacji: 2026-11-16. Program jest przygotowany do testów stanowiskowych,
 ale nie został w tej sesji sprawdzony na fizycznej aparaturze.
 
+Aktualizacja 2026-11-17: użytkownik zgłosił IDN **DSO-X 3034A**, SN `MY53160630`,
+firmware `02.66.2024012316`. Obecny sterownik obsługuje ten model oraz 2014A;
+w starszym EXE identyfikacja 3034A jest odrzucana. Użyj aktualnego EXE albo
+aktualnych źródeł i ponów Test oscyloskopu. Adres USB pozostaje ten sam.
+
 ## Instalacja na komputerze laboratoryjnym
 
 PowerShell, katalog repozytorium; Python **3.12**, nie stare środowisko 3.9:
@@ -86,6 +91,31 @@ zmiana czasów, trybu, częstotliwości lub mocy unieważnia potwierdzenie.
 Instrukcja i źródła czasów: [CZASY_I_WALIDACJA.md](CZASY_I_WALIDACJA.md).
 
 ## Jutro: rzeczywiste CW ODMR
+
+### Komunikat „Please install PyUSB / No module named usb”
+
+Wybrano backend `@py` dla adresu `USB…`, ale w interpreterze albo EXE brakuje
+modułu PyUSB. Najpierw sprawdź **Ustawienia → Połączenia i dane → Biblioteka VISA**:
+jeśli komputer ma NI-VISA lub Keysight IO Libraries, wybierz **systemowy NI / Keysight**,
+zapisz i ponów **Test oscyloskopu**. Brak biblioteki VISA po tym wyborze oznacza,
+że trzeba ją zainstalować albo skonfigurować ścieżkę `@py`.
+
+Dla uruchomienia z Pythona zainstaluj w tym samym środowisku i uruchom aplikację ponownie:
+
+```powershell
+.\.venv312\Scripts\python.exe -m pip install pyusb libusb-package
+```
+
+Pakiet nazywa się `pyusb`, a importowany moduł `usb`. Obecny extra `hardware`
+instaluje PyUSB oraz, na Windows, libusb-package. Wersja EXE musi zawierać te
+moduły podczas budowania; instalacja pip na komputerze nie dopisze ich do starego EXE.
+
+`libusb-package` dostarcza bibliotekę, ale nie zmienia sterownika przypisanego do
+oscyloskopu w Windows. Nie zakładamy, że samo zainstalowanie pakietów zapewni
+łączność. Jeśli oscyloskop działa w narzędziu NI/Keysight, używaj tego samego
+systemowego backendu VISA. Nie zmieniamy automatycznie sterowników USB.
+Źródła: [PyVISA-py — USB](https://github.com/pyvisa/pyvisa-py/blob/main/docs/source/installation.rst),
+[libusb-package](https://github.com/pyocd/libusb-package).
 
 ### Przed pierwszym START
 

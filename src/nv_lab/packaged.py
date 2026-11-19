@@ -53,6 +53,12 @@ def smoke_test(directory):
         import qcodes
         import pyvisa_py
         import pulsestreamer
+        import usb
+        import libusb_package
+        if libusb_package.get_libusb1_backend() is None:
+            raise RuntimeError('Bundled libusb backend could not load')
+        report['pyusb_version']=usb.__version__
+        report['libusb_backend_available']=True
         from nv_lab.hardware.sg386 import SG386
         from PySide6.QtWidgets import QApplication,QAbstractSpinBox
         from PySide6.QtGui import QFontDatabase

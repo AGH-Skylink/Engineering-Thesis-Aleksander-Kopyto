@@ -43,7 +43,7 @@ class DemoController(QObject):
         window.notice.setStyleSheet("background: #fff0be; color: #654700; padding: 8px; font-weight: bold;")
         window.status.setStyleSheet("background: #654700; color: white; padding: 14px;")
         window.console.sg_address.setText("DEMO::SG386")
-        window.console.scope_address.setText("DEMO::DSOX2014A")
+        window.console.scope_address.setText("DEMO::DSOX3034A")
         for widget in (window.console.sg_address, window.console.scope_address, window.console.backend):
             widget.setEnabled(False)
         self.mode_changed()

@@ -2,6 +2,9 @@
 
 Uruchom **`dist/NVLab.exe`** dwuklikiem. Python nie musi być zainstalowany.
 Program startuje w trybie symulatora; sam nie łączy się z aparaturą.
+Aktualizacja 2026-11-17: obsługiwane są DSO-X 3034A (zgłoszony na stanowisku)
+oraz 2014A. Stara wersja odrzucała IDN 3034A. Przed podmianą EXE zamknij
+poprzednią uruchomioną wersję; pip nie aktualizuje zawartości gotowego EXE.
 W zakładce sekwencji jest **Autoscale**, a **Help · sprzęt** pokazuje schemat
 z zielonymi/czerwonymi kontrolkami ostatniego testu oraz osobnym oznaczeniem SIM.
 Pełną procedurę sprzętową opisuje [URUCHOMIENIE_ODMR.md](URUCHOMIENIE_ODMR.md).
@@ -10,7 +13,9 @@ Możesz skopiować pojedynczy EXE do własnego zapisywalnego katalogu, np.
 `Dokumenty/NVLab`. Dane powstają w `runs/` obok EXE; ustawienia w
 `local_config.json`. Katalog pomiarów można zmienić w Ustawieniach.
 Do komunikacji USB ze sprzętem nadal potrzebna jest biblioteka NI-VISA lub
-Keysight VISA zainstalowana w Windows; wybierz backend systemowy w aplikacji.
+Keysight VISA zainstalowana w Windows (wybierz backend systemowy), albo zgodny
+sterownik urządzenia dla PyUSB/libusb (backend @py). Aktualne pakowanie dołącza
+PyUSB i DLL libusb; nie instaluje ani nie zmienia sterownika USB w Windows.
 
 Adresy historyczne ze starego kodu v6 są już wpisane w ustawieniach:
 

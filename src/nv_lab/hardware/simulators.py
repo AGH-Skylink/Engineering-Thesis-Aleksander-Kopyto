@@ -117,7 +117,7 @@ class SimHMP4040:
         self.enabled = [False] * 4
 
 
-class SimDSOX2014A:
+class SimInfiniiVisionScope:
     def __init__(self, config, rf, pulse):
         self.config, self.rf, self.pulse = config, rf, pulse
         self.random = random.Random(config.simulation_seed)
@@ -127,7 +127,7 @@ class SimDSOX2014A:
 
     def identify(self):
         self.connected = True
-        return "SIMULATED Keysight,DSO-X 2014A,SIM2014,1.0"
+        return "SIMULATED Agilent,DSO-X 3034A,SIM3034,1.0"
 
     def configure(self, points):
         self.points = points
@@ -189,6 +189,9 @@ class SimDSOX2014A:
             "model_t1_ns":350000,"model_pi_ns":100,"model_t2_ns":80000})
 
 
+SimDSOX2014A=SimInfiniiVisionScope
+
+
 class SimStation:
     simulated = True
 
@@ -197,7 +200,7 @@ class SimStation:
         self.rf = SimSG386()
         self.pulse = SimPulseStreamer(config)
         self.laser = SimLaserGate(self.pulse)
-        self.scope = SimDSOX2014A(config, self.rf, self.pulse)
+        self.scope = SimInfiniiVisionScope(config, self.rf, self.pulse)
         self.supply = SimHMP4040()
         self.identities = {}
 

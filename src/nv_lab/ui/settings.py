@@ -20,7 +20,7 @@ class SettingsDialog(QDialog):
         connections = QWidget()
         form = QFormLayout(connections)
         self.backend = QComboBox()
-        self.backend.addItem("Python VISA (@py) — TCP/IP", "@py")
+        self.backend.addItem("Python VISA (@py) — TCP/IP, USB przez libusb", "@py")
         self.backend.addItem("NI / Keysight VISA — systemowy", "")
         self.backend.setCurrentIndex(0 if config.backend else 1)
         form.addRow("Biblioteka VISA", self.backend)
@@ -29,7 +29,7 @@ class SettingsDialog(QDialog):
         self.scope.setPlaceholderText("USB0::…::INSTR lub TCPIP0::…::INSTR")
         self.pulse = QLineEdit(config.pulse_address)
         form.addRow("SRS SG386", self.sg)
-        form.addRow("Oscyloskop DSO-X 2014A", self.scope)
+        form.addRow("Oscyloskop DSO-X 3034A / 2014A", self.scope)
         form.addRow("Pulse Streamer — IP", self.pulse)
         self.timeout = QDoubleSpinBox()
         self.timeout.setRange(0.5, 30)
@@ -38,7 +38,8 @@ class SettingsDialog(QDialog):
         form.addRow("Timeout VISA", self.timeout)
         self.directory = QLineEdit(str(output_dir))
         form.addRow("Katalog automatycznego zapisu", self.directory)
-        note = QLabel("USB wymaga NI/Keysight VISA lub skonfigurowanego PyUSB/libusb. "
+        note = QLabel("USB: jeśli używasz sterownika NI/Keysight, wybierz backend systemowy. "
+                      "Backend @py wymaga PyUSB/libusb i zgodnego sterownika urządzenia. "
                       "Klient Pulse Streamera ma własny timeout HTTP 10 s. "
                       "HMP4040 nie jest wymagany do CW ODMR i nie jest włączany automatycznie.")
         note.setWordWrap(True)

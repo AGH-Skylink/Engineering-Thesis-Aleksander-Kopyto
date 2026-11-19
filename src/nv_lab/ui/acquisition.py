@@ -178,7 +178,7 @@ class CWController(QObject):
         w.console.simulation_provider = self.simulation_diagnostic if self.simulated else None
         if self.simulated:
             w.console.sg_address.setText("SIM::SG386")
-            w.console.scope_address.setText("SIM::DSOX2014A")
+            w.console.scope_address.setText("SIM::DSOX3034A")
             w.notice.setText("SYMULATOR URZĄDZEŃ · Dane syntetyczne · CW / Pulsed ODMR / T1 / T2 · Czasy wymagają kalibracji.")
             w.notice.setStyleSheet("background:#fff2cc; color:#725012; padding:9px; font-weight:600;")
         else:

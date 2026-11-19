@@ -10,7 +10,7 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.optional-dependencies]
-hardware = ["qcodes", "pyvisa", "pyvisa-py", "pulsestreamer>=2,<3"]
+hardware = ["qcodes", "pyvisa", "pyvisa-py>=0.8.1", "pyusb>=1.2,<2", "libusb-package>=1.0.26; sys_platform == 'win32'", "pulsestreamer>=2,<3"]
 gui = ["PySide6>=6.8,<7", "pyqtgraph>=0.13.7,<0.15"]
 
 [tool.setuptools.packages.find]

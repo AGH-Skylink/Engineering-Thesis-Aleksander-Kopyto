@@ -255,9 +255,9 @@ class DiagnosticsConsole(QWidget):
     def _demo_finished(self):
         replies = {
             "sg386": "SG386-DEMO: IDN symulowany; FREQ = 2870000000 Hz; AMPR = -30 dBm.",
-            "scope": "DSO-X 2014A-DEMO: identyfikacja symulowana; generator próbek gotowy.",
+            "scope": "DSO-X 3034A-DEMO: identyfikacja symulowana; generator próbek gotowy.",
             "scope-scale": "SYMULACJA: brak prawdziwego porównania WORD/ASCII. Wykonaj test na oscyloskopie.",
-            "list": "Zasoby symulowane: DEMO::SG386, DEMO::DSOX2014A, DEMO::PULSESTREAMER.",
+            "list": "Zasoby symulowane: DEMO::SG386, DEMO::DSOX3034A, DEMO::PULSESTREAMER.",
         }
         if self.simulation_provider is not None:
             try:

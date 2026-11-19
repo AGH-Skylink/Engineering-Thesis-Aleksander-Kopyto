@@ -4,6 +4,11 @@
 Przetestowano symulatory, sterowniki przez lokalne serwery SCPI i przepływ GUI.
 Fizyczna walidacja na stanowisku pozostaje do wykonania.
 
+Aktualizacja 2026-11-17: po zgłoszeniu rzeczywistego IDN dodano **DSO-X 3034A**
+(2014A pozostaje obsługiwany). Zależności sprzętowe i pakowanie EXE obejmują
+PyUSB oraz libusb na Windows; zgodny sterownik urządzenia lub systemowy VISA
+nadal jest wymagany. Łączność IDN zgłosił użytkownik; akwizycja wymaga testu.
+
 ## Uruchomienie na jutro
 
 Wersja Windows bez instalacji Pythona: **`dist/NVLab.exe`** po zbudowaniu

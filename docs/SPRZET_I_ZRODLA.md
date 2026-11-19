@@ -1,5 +1,25 @@
 # Przegląd aparatury i źródeł — 2026-11-16
 
+## Potwierdzenie użytkownika — 2026-11-17
+
+Odpowiedź urządzenia zgłoszona przez użytkownika wskazuje **DSO-X 3034A**,
+numer seryjny `MY53160630`, firmware `02.66.2024012316`. Nie jest to 2014A.
+Poprzedni sterownik odrzucał ten model przez zbyt wąską kontrolę identyfikacji.
+Obecna implementacja akceptuje jawnie 3034A i zachowuje obsługę 2014A;
+inne modele nadal są odrzucane. Potwierdzono w ten sposób zgłoszoną odpowiedź
+IDN, nie poprawność akwizycji ani kalibracji na stanowisku.
+
+Sprawdzono [Keysight InfiniiVision 3000 X-Series Programmer’s Guide](https://www.keysight.com/cd/en/assets/9018-06894/programming-guides/9018-06894.pdf):
+model 3034A w tabeli urządzeń; DIGitize (s.71, 213), AER (s.206), TER (s.239),
+WORD/BYTE/LSBF, znaczniki dziur i obcięcia oraz COUN (s.1001–1006), dziesięć pól
+preambuły i skalowanie (s.1010–1011), UNSigned (s.1021) i TIM:REF LEFT (s.906).
+Używany profil ma te komendy także w 3000 X. Skala pozostaje liczona z preambuły;
+nie przenosimy stałego offsetu ADC ani arbitralnej skali napięcia.
+
+Dla backendu @py na Windows dodano PyUSB i libusb-package do zależności i EXE.
+Sprawdzono ładowanie DLL libusb, bez otwierania fizycznego oscyloskopu. Nadal
+potrzebny jest zgodny sterownik USB albo systemowy NI/Keysight VISA.
+
 Poniżej rozdzielono dane z dokumentacji producentów, historycznego kodu oraz
 potwierdzenia użytkownika. Przegląd dokumentacji nie zastępuje testu aparatury.
 

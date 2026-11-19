@@ -124,7 +124,7 @@ class HelpPanel(QWidget):
         self._box('mw','Tor MW / bramka',f'Połączenia D{config.mw_channel} i I/Q\nwedług rzeczywistego okablowania',700,225,250)
         self._box('hmp4040','Zasilacz HMP4040','Poza bieżącą pętlą pomiarową',40,400,220)
         self._box('detector','Fotodetektor','Wyjście analogowe → oscyloskop',385,400,210)
-        self._box('scope','DSO-X 2014A',f'CH{config.scope_channel}: sygnał · CH{config.scope_trigger_channel}: trigger',700,400,250)
+        self._box('scope','DSO-X 3034A / 2014A',f'CH{config.scope_channel}: sygnał · CH{config.scope_trigger_channel}: trigger',700,400,250)
         self._status('pc','ok','Aplikacja działa')
         for key in ('nv','mw','detector'):self._status(key,'unknown','Tor fizyczny · do sprawdzenia')
         self._status('laser','unknown','Brak telemetrii')
