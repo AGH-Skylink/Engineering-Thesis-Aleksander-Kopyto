@@ -48,7 +48,7 @@ class CWConfig:
 class StationConfig:
     backend: str = "@py"
     sg_address: str = "TCPIP0::192.168.0.6::inst0::INSTR"
-    scope_address: str = "USB0::0x0957::0x17A4::MY53160630::INSTR"  # historical v6 station
+    scope_address: str = "USB0::0x0957::0x17A4::MY53160630::INSTR"  # DSO-X3034, SN MY53160630
     pulse_address: str = "192.168.0.5"
     scope_channel: int = 2
     scope_trigger_channel: int = 1

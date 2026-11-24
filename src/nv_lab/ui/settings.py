@@ -29,7 +29,7 @@ class SettingsDialog(QDialog):
         self.scope.setPlaceholderText("USB0::…::INSTR lub TCPIP0::…::INSTR")
         self.pulse = QLineEdit(config.pulse_address)
         form.addRow("SRS SG386", self.sg)
-        form.addRow("Oscyloskop DSO-X 3034A / 2014A", self.scope)
+        form.addRow("Oscyloskop DSO-X3034 (MY53160630)", self.scope)
         form.addRow("Pulse Streamer — IP", self.pulse)
         self.timeout = QDoubleSpinBox()
         self.timeout.setRange(0.5, 30)

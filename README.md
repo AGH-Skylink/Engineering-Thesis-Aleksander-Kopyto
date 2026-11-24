@@ -9,6 +9,10 @@ Aktualizacja 2026-11-17: po zgłoszeniu rzeczywistego IDN dodano **DSO-X 3034A**
 PyUSB oraz libusb na Windows; zgodny sterownik urządzenia lub systemowy VISA
 nadal jest wymagany. Łączność IDN zgłosił użytkownik; akwizycja wymaga testu.
 
+Aktualne stanowisko (2026-11-24): **DSO-X3034**, numer seryjny **MY53160630**.
+Domyślny adres VISA: `USB0::0x0957::0x17A4::MY53160630::INSTR`.
+Sterownik akceptuje również identyfikację DSO-X3034 bez końcowego „A”.
+
 ## Uruchomienie na jutro
 
 Wersja Windows bez instalacji Pythona: **`dist/NVLab.exe`** po zbudowaniu
@@ -49,7 +53,7 @@ Budowa modułowego programu do automatyzacji eksperymentów NV: CW ODMR, pulsed 
 - CW ODMR: sweep częstotliwości, odczyty RF OFF/ON, uśrednianie programowe,
   kontrast, surowe przebiegi, STOP, automatyczny zapis JSON/CSV i dziennik częściowy.
 - Stanowe symulatory SG386, Pulse Streamera, oscyloskopu, bramki lasera i HMP4040.
-- Rzeczywiste adaptery CW: SG386/QCoDeS, Pulse Streamer i DSO-X 2014A/PyVISA.
+- Rzeczywiste adaptery CW: SG386/QCoDeS, Pulse Streamer i DSO-X3034/PyVISA.
 - Silnik impulsowy: T1 z parą bez π / z π, Pulsed ODMR ze sweepem częstotliwości,
   T2 echo Hahna z końcowym π/2 o fazie 0°/180°, zewnętrzny trigger i uśrednianie
   oscyloskopu. Zapis obu surowych przebiegów, sekwencji i okien integracji.

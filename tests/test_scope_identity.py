@@ -5,6 +5,15 @@ from nv_lab.hardware.dsox2014a import InfiniiVisionScope,scope_model
 
 
 class ScopeIdentityTests(unittest.TestCase):
+    def test_reported_3034_identity_is_accepted_without_writes(self):
+        identity='AGILENT TECHNOLOGIES,DSO-X3034,MY53160630,1'
+        resource=Mock();resource.query.return_value=identity
+        scope=InfiniiVisionScope(resource,2)
+        self.assertEqual(scope.identify(),identity)
+        self.assertEqual(scope.model,'DSOX3034')
+        resource.query.assert_called_once_with('*IDN?')
+        resource.write.assert_not_called()
+
     def test_reported_agilent_3034a_identity_is_accepted_without_writes(self):
         identity='AGILENT TECHNOLOGIES,DSO-X3034A,MY53160630,02.66.2024012316'
         resource=Mock();resource.query.return_value=identity
@@ -16,6 +25,7 @@ class ScopeIdentityTests(unittest.TestCase):
 
     def test_spacing_vendor_and_model_formats(self):
         for text,expected in (('KEYSIGHT,DSO-X 2014A,SN,1','DSOX2014A'),
+            ('Agilent Technologies,DSO-X 3034,MY53160630,1','DSOX3034'),
             ('Agilent Technologies,DSOX3034A,SN,1','DSOX3034A')):
             with self.subTest(text=text):self.assertEqual(scope_model(text),expected)
 

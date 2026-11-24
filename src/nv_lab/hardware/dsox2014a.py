@@ -6,7 +6,7 @@ import math
 import time
 from nv_lab.core.odmr import Waveform
 
-SUPPORTED_MODELS={'DSOX2014A':'DSO-X 2014A','DSOX3034A':'DSO-X 3034A'}
+SUPPORTED_MODELS={'DSOX2014A':'DSO-X 2014A','DSOX3034':'DSO-X3034','DSOX3034A':'DSO-X 3034A'}
 
 
 def scope_model(identity):
@@ -14,7 +14,7 @@ def scope_model(identity):
     model=fields[1].replace(' ','').replace('-','').upper() if len(fields)>1 else ''
     if model not in SUPPORTED_MODELS:
         raise ValueError('Urządzenie nie identyfikuje się jako obsługiwany oscyloskop. '
-            f'Oczekiwano DSO-X 2014A lub DSO-X 3034A, otrzymano: {identity}')
+            f'Oczekiwano DSO-X3034, DSO-X 3034A lub DSO-X 2014A, otrzymano: {identity}')
     return model
 
 
